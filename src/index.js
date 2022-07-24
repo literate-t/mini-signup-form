@@ -9,11 +9,15 @@ class SignupForm {
     $pwCheckInput
     $pwCheckMsg
     $submit
-    isValid
+    $modal
+    $confirmId
+    $confirmPw
+    $cancelBtn
+    $approveBtn
+
     constructor() {
         this.#initElement()
         this.#addEvent()
-        this.#focusOnIdInput()
     }
 
     #initElement() {
@@ -25,42 +29,41 @@ class SignupForm {
         this.$pwCheckInput = this.$formWrapper.querySelector('#pw-check')
         this.$pwCheckMsg = this.$formWrapper.querySelector('#pw-check-msg')
         this.$submit = this.$formWrapper.querySelector('#submit')
+        this.$modal = document.querySelector('#modal')
+        this.$confirmId = this.$modal.querySelector('#confirm-id')
+        this.$confirmPw = this.$modal.querySelector('#confirm-pw')
+        this.$cancelBtn = this.$modal.querySelector('#cancel-btn')
+        this.$approveBtn = this.$modal.querySelector('#approve-btn')
     }
 
     #addEvent() {
-        window.addEventListener('load', this.#focusOnIdInput.bind(this))
         this.$formWrapper.addEventListener(
             'focusout',
             this.#checkInput.bind(this)
         )
 
         this.$formWrapper.addEventListener('submit', this.#onSubmit.bind(this))
+        this.$cancelBtn.addEventListener('click', () => {
+            this.$modal.close()
+        })
+        this.$approveBtn.addEventListener('click', () => {
+            alert('가입되었습니다 🥳')
+            this.$modal.close()
+        })
     }
 
     #onSubmit(e) {
         e.preventDefault()
-        this.#setSubmitDisabled()
-        console.log('submit')
-    }
+        const result =
+            this.#checkIdInput(this.$idInput.value) &&
+            this.#checkPasswordInput(this.$pwInput.value) &&
+            this.#checkPasswordCheckInput(this.$pwCheckInput)
 
-    #setSubmitDisabled() {
-        if (this.isValid === false) {
-            this.$submit.disabled = true
-        } else {
-            this.$submit.disabled = false
+        if (result) {
+            this.$modal.showModal()
+            this.$confirmId.textContent = this.$idInput.value
+            this.$confirmPw.textContent = this.$pwInput.value
         }
-    }
-
-    #setIsValidTrue() {
-        this.isValid = true
-    }
-
-    #setIsValidFalse() {
-        this.isValid = false
-    }
-
-    #focusOnIdInput() {
-        this.$idInput.focus()
     }
 
     #checkInput(e) {
@@ -72,7 +75,6 @@ class SignupForm {
         } else if (id === 'pw-check') {
             this.#checkPasswordCheckInput(value)
         }
-        //this.#setSubmitDisabled()
     }
 
     #checkIdInput(value) {
@@ -85,7 +87,7 @@ class SignupForm {
         } else {
             this.#setPlainMessage(this.$idMsg, this.$idInput)
         }
-        //this.#setSubmitDisabled()
+        return result
     }
 
     #checkPasswordInput(value) {
@@ -98,7 +100,7 @@ class SignupForm {
         } else {
             this.#setPlainMessage(this.$pwMsg, this.$pwInput)
         }
-        //this.#setSubmitDisabled()
+        return result
     }
 
     #checkPasswordCheckInput(value) {
@@ -111,17 +113,16 @@ class SignupForm {
         } else {
             this.#setPlainMessage(this.$pwCheckMsg, this.$pwCheckInput)
         }
+        return checkPw.result
     }
 
     #setErrorMessage($msg, checkObj) {
         $msg.textContent = checkObj.message
-        //this.#setIsValidFalse()
     }
 
     #setPlainMessage($msg, $input) {
         $msg.textContent = ''
         $input.classList.remove('border-red-600')
-        //this.#setIsValidTrue()
     }
 
     #isNothingInInput(value, $msg, $input) {
