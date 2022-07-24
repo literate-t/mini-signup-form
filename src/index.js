@@ -14,6 +14,11 @@ class SignupForm {
     $confirmPw
     $cancelBtn
     $approveBtn
+    $increaseFontBtn
+    $decreaseFontBtn
+    $html
+    #MAX_FONT_SIZE = 20
+    #MIN_FONT_SIZE = 12
 
     constructor() {
         this.#initElement()
@@ -34,6 +39,9 @@ class SignupForm {
         this.$confirmPw = this.$modal.querySelector('#confirm-pw')
         this.$cancelBtn = this.$modal.querySelector('#cancel-btn')
         this.$approveBtn = this.$modal.querySelector('#approve-btn')
+        this.$increaseFontBtn = document.getElementById('increase-font-btn')
+        this.$decreaseFontBtn = document.getElementById('decrease-font-btn')
+        this.$html = document.documentElement
     }
 
     #addEvent() {
@@ -50,6 +58,30 @@ class SignupForm {
             alert('가입되었습니다 🥳')
             this.$modal.close()
         })
+
+        this.$increaseFontBtn.addEventListener('click', () => {
+            this.#onClickFontSizeButton('increase')
+        })
+        this.$decreaseFontBtn.addEventListener('click', () => {
+            this.#onClickFontSizeButton('decrease')
+        })
+    }
+
+    #getHtmlFontSize() {
+        return parseFloat(getComputedStyle(this.$html).fontSize)
+    }
+
+    #setHtmlFontSize(size) {
+        this.$html.style.fontSize = size
+    }
+
+    #onClickFontSizeButton(type) {
+        const currentFontSize = this.#getHtmlFontSize()
+        const nextFontSize =
+            type === 'increase' ? currentFontSize + 1 : currentFontSize - 1
+        this.#setHtmlFontSize(nextFontSize)
+        this.$increaseFontBtn.disabled = this.#MAX_FONT_SIZE <= nextFontSize
+        this.$decreaseFontBtn.disabled = nextFontSize <= this.#MIN_FONT_SIZE
     }
 
     #onSubmit(e) {
@@ -125,12 +157,11 @@ class SignupForm {
         $input.classList.remove('border-red-600')
     }
 
-    #isNothingInInput(value, $msg, $input) {
+    #isNothingInInput(value, target, msgTarget) {
         if (value === '') {
             const message = '필수 정보입니다'
-            $msg.textContent = message
-            $input.classList.add('border-red-600')
-            //this.#setIsValidFalse()
+            target.textContent = message
+            msgTarget.classList.add('border-red-600')
             return true
         }
         return false
